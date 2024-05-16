@@ -40,6 +40,7 @@ export default function SignIn() {
       if(response.status === 200){
         Cookies.set('auth', data.data.token, {expires : 10 / (24 * 60)});
         localStorage.setItem('id', data.data.user.id)
+        localStorage.setItem('name', data.data.user.fullname)
         Swal.fire({
           title : 'Berhasil!',
           text: 'Berhasil login',
