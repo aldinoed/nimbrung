@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User{
+    id          Int       @id @default(autoincrement())
+    email       String    @db.VarChar(255)
+    image       String?   @db.VarChar(255)
+    fullname    String
+    password    String     
+    posts       Post[]
+    likes     Like[]
+    comments  Comment[]
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+    
+    @@map("users")
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String   @db.VarChar(255)
+  image     String?
+  content   String
+  authorId  Int      @default(0)
+  user      User     @relation(fields: [authorId], references: [id], map: "postToUser")
+  likes     Like[]
+  comments  Comment[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("posts")
+}
+
+model Comment{
+      id         Int      @id @default(autoincrement())
+      userId     Int      
+      user       User     @relation(fields: [userId], references: [id], map: "commentToUser") 
+      postId     Int      
+      post       Post     @relation(fields: [postId], references: [id], map: "commentToPost") 
+      createdAt  DateTime @default(now())
+      updatedAt  DateTime @updatedAt
+
+  @@map("comments")
+}
+
+model Like{
+      id         Int      @id @default(autoincrement())
+      userId     Int      @unique
+      user       User     @relation(fields: [userId], references: [id], map: "likeToUser") 
+      postId     Int      @unique
+      post       Post     @relation(fields: [postId], references: [id], map: "likeToPost") 
+      createdAt  DateTime @default(now())
+      updatedAt  DateTime @updatedAt
+
+  @@map("likes")
+}
