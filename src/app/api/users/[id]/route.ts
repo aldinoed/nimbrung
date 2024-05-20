@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "../../../../prisma";
+import prisma from "../../../../../prisma";
 
 export async function GET(request: any, { params }: any) {
   const id = parseInt(params.id);

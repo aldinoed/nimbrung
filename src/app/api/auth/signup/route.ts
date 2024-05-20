@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import prisma from "../../../../prisma";
+import prisma from "../../../../../prisma";
 // import { hash } from 'bcrypt';
 
 export async function POST(request: any) {
@@ -12,7 +12,7 @@ export async function POST(request: any) {
   // if(existedUser){
   //   return NextResponse.json({message: 'Email telah terdaftar!'}, {status: 409})
   // }
-  try{
+  try {
     const user = await prisma.user.create({
       data: {
         email: email,
@@ -29,7 +29,7 @@ export async function POST(request: any) {
       },
       { status: 200 }
     );
-  }catch(error){
+  } catch (error) {
     console.error("Error creating user:", error);
     return NextResponse.json(
       {

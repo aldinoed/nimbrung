@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "../../../../prisma";
+import prisma from "../../../../../prisma";
 
 export async function POST(request: any) {
   console.log("🚀 ~ POST ~ request:", request);
