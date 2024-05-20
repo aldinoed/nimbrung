@@ -12,11 +12,20 @@ import Link from "next/link";
 import Loading from "./components/Loading";
 
 export default function Home() {
-  const [posts, setPosts] = useState(undefined);
+  const [posts, setPosts] = useState([]);
+  const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     async function fetchPostData() {
       const response = await axios.get("http://localhost:3000/api/posts");
-      response.data.data === undefined ? setPosts([]) : setPosts(response.data.data);
+      console.log("🚀 ~ fetchPostData ~ response:", response);
+      if (response.data.data.length !== undefined) {
+        setPosts(response.data.data);
+        setLoaded(true);
+      } else {
+        console.log("agdajdhghsagj");
+        setPosts([]);
+        setLoaded(true);
+      }
     }
 
     fetchPostData();
@@ -28,7 +37,7 @@ export default function Home() {
           <Navbar></Navbar>
         </div>
         <div className="flex justify-center min-h-screen bg-white">
-          {posts === undefined ? (
+          {loaded === false ? (
             <Loading type={"spin"} color={"#aaaaaa"} />
           ) : posts.length === 0 ? (
             <>
