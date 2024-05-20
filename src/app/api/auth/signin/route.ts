@@ -15,7 +15,7 @@ export async function POST(request: any) {
     // const hashedPassword = await hash(password, 10);
 
     if (user.length === 1) {
-      const valid = (password === user[0].password);
+      const valid = password === user[0].password;
       console.log("🚀 ~ POST ~ valid:", valid);
       if (email === user[0].email && valid == true) {
         const token = jwt.sign({ id: user[0].id }, secretKey, {
@@ -51,7 +51,7 @@ export async function POST(request: any) {
           {
             success: true,
             message: `Berhasil login!`,
-            data: {user: user[0], token: token},
+            data: { user: user[0], token: token },
           },
           { status: 200 }
         );

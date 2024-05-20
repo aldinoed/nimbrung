@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
-import prisma from "../../../prisma";
-
-export async function GET() {
+import prisma from "../../../../prisma";
+export async function GET(req: any, { params }: any) {
+  console.log("🚀 ~ GET ~ params:", params);
   try {
-    const response = await prisma.post.findMany();
+    const response = await prisma.post.findFirst({ where: { title: params.title } });
 
-    if (response.length > 0) {
+    if (response) {
       return NextResponse.json(
         {
-          sucess: true,
+          success: true,
           data: response,
         },
         {
@@ -37,13 +37,4 @@ export async function GET() {
       }
     );
   }
-}
-
-export async function DELETE(request: any, { params }: any) {
-  const id = parseInt(params.id);
-  const response = await prisma.post.delete({
-    where: {
-      id,
-    },
-  });
 }

@@ -1,17 +1,20 @@
 import { NextResponse } from "next/server";
-import prisma from "../../../prisma";
+import prisma from "../../../../prisma";
 
 export async function POST(request: any) {
-  const { title, content } = await request.json();
-
-  try{
+  console.log("🚀 ~ POST ~ request:", request);
+  const { title, content, authorId, image } = await request.json();
+  try {
     const post = await prisma.post.create({
-      data:{
-          title: title,
-          content: content,
-      }
+      data: {
+        title: title,
+        content: content,
+        authorId: authorId,
+        image: image,
+      },
     });
-  
+    console.log("🚀 ~ POST ~ post:", post);
+
     return NextResponse.json(
       {
         success: true,
@@ -20,7 +23,8 @@ export async function POST(request: any) {
       },
       { status: 200 }
     );
-  }catch(error : any){
+  } catch (error: any) {
+    console.log("🚀 ~ POST ~ error:", error);
     return NextResponse.json(
       {
         success: false,
@@ -30,5 +34,3 @@ export async function POST(request: any) {
     );
   }
 }
-
-
