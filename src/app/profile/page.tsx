@@ -7,7 +7,12 @@ import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Loading from "../components/Loading";
-import { User } from "@prisma/client";
+
+interface User {
+  fullname: string;
+  email: string;
+  password: string;
+}
 
 export default function Profile() {
   const router = useRouter();
