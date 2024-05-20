@@ -7,10 +7,11 @@ import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Loading from "../components/Loading";
+import { User } from "@prisma/client";
 
 export default function Profile() {
   const router = useRouter();
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
 
   if (Cookies.get("auth") === null || Cookies.get("auth") === undefined || localStorage.getItem("id") == null || localStorage.getItem("name") == null) {
     localStorage.clear();
