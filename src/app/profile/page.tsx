@@ -15,16 +15,15 @@ export default function Profile() {
   if (Cookies.get("auth") === null || Cookies.get("auth") === undefined || localStorage.getItem("id") == null || localStorage.getItem("name") == null) {
     localStorage.clear();
     router.push("/");
-  } else {
-    useEffect(() => {
-      async function fetchUser() {
-        const data = await axios.get("http://localhost:3000/api/users/" + localStorage.getItem("id"));
-        console.log("🚀 ~ fetchUser ~ data.data.data.user:", data.data.data.user);
-        setUser(data.data.data.user);
-      }
-      fetchUser();
-    }, []);
   }
+  useEffect(() => {
+    async function fetchUser() {
+      const data = await axios.get("http://localhost:3000/api/users/" + localStorage.getItem("id"));
+      console.log("🚀 ~ fetchUser ~ data.data.data.user:", data.data.data.user);
+      setUser(data.data.data.user);
+    }
+    fetchUser();
+  }, []);
 
   const handleSignOut = async (e: any) => {
     if (Cookies.get("auth")) {
