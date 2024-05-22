@@ -63,7 +63,7 @@ export default function Navbar() {
             <div className="flex flex-row">
               <Link href="/posts/create-post">
                 <div className="max-w-10 max-h-10 me-5 rounded-md border-2 border-black">
-                  <img alt="buat postingan" src="image/pencil.png"></img>
+                  <img alt="buat postingan" src="https://res.cloudinary.com/du4zezzcw/image/upload/v1716348215/pencil_ogwf4a.png"></img>
                 </div>
               </Link>
               <div>

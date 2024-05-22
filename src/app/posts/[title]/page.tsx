@@ -73,7 +73,6 @@ export default function DetailPost() {
       });
       router.push("/signin");
     } else {
-      const userId = localStorage.getItem("id") ?? null;
       try {
         const response = await fetch("http://localhost:3000/api/posts/comment", {
           method: "POST",
@@ -94,7 +93,6 @@ export default function DetailPost() {
             icon: "success",
           });
         }
-        console.log("🚀 ~ hanldeCommentSubmit ~ response:", res);
         fetchComment();
       } catch (error: any) {
         Swal.fire({
@@ -152,22 +150,22 @@ export default function DetailPost() {
                   <h1 className="mt-4 text-center text-black text-lg font-bold">Belum ada komentar</h1>
                 </div>
               ) : (
-                commentData.map((item: any, i: number) => (
-                  <div className="max-h-24 ">
-                    <div key={i} className="rounded-md border flex-col max-w-full">
+                <div className="mx-auto overflow-y-auto max-h-44 flex justify-center max-w-48 min-w-96 flex-col align-items-center mt-4">
+                  {commentData.map((item: any, i: number) => (
+                    <div key={i} className="my-auto rounded-md border min-h-24 min-w-full flex-col align-items-center max-w-full">
                       <div className="flex">
                         <img src="https://res.cloudinary.com/du4zezzcw/image/upload/v1716191006/nimbrung_1_idevuj.png" className="rounded-full max-w-10" alt="" />
                         <div className="flex flex-col">
-                          <span>{item.user.fullname}</span>
-                          <span>{item.createdAt}</span>
+                          <span className="">{item.user.fullname}</span>
+                          <span className="text-xs text-current">{item.createdAt}</span>
                         </div>
                       </div>
                       <div>
                         <p>{item.comment}</p>
                       </div>
                     </div>
-                  </div>
-                ))
+                  ))}
+                </div>
               )}
             </div>
           </div>
