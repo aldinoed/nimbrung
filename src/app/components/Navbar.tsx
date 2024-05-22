@@ -28,27 +28,12 @@ export default function Navbar() {
     user ?? setUser(user);
   }, []);
 
-  const handleSignout = async (e: any) => {
-    if (token) {
-      localStorage.clear();
-      Cookies.remove("auth");
-      Swal.fire({
-        title: "Behasil!",
-        text: "Anda sudah logout!",
-        icon: "success",
-      });
-      router.push("/");
-    } else if (!token) {
-      localStorage.clear();
-      router.push("/");
-    }
-  };
   return (
-    <div className="bg-white border-gray-200 dark:bg-gray-900 shadow-md">
+    <div className="sticky top-0  bg-white border-gray-200 dark:bg-gray-900 shadow-md" style={{ minWidth: "100%", marginTop: "0px" }}>
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-        <a href="https://flowbite.com/" className="flex items-center space-x-3 rtl:space-x-reverse">
-          <img src="https://asset.cloudinary.com/du4zezzcw/12464a4a3265ef15f819ca6a054fda53" className="h-8" alt="Flowbite Logo" />
-          <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Flowbite</span>
+        <a href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
+          <img src="https://res.cloudinary.com/du4zezzcw/image/upload/v1716191006/nimbrung_1_idevuj.png" className="h-16" alt="nimbrung" />
+          {/* <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Flowbite</span> */}
         </a>
         <div className="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
           {token !== undefined ? (
@@ -59,17 +44,19 @@ export default function Navbar() {
                 </div>
               </Link>
 
-              <button
-                type="button"
-                className="text-sm w-8 h-8 bg-gray-400 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
-                id="user-menu-button"
-                aria-expanded="false"
-                data-dropdown-toggle="user-dropdown"
-                data-dropdown-placement="bottom"
-              >
-                <span className="sr-only">Open user menu</span>
-                <img className="w-8 h-8 rounded-full" src="/docs/images/people/profile-picture-3.jpg" alt="user photo" />
-              </button>
+              <Link href="/profile">
+                <button
+                  type="button"
+                  className="text-sm w-8 h-8 bg-gray-400 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+                  id="user-menu-button"
+                  aria-expanded="false"
+                  data-dropdown-toggle="user-dropdown"
+                  data-dropdown-placement="bottom"
+                >
+                  <span className="sr-only">Open user menu</span>
+                  <img className="w-8 h-8 rounded-full" src="/docs/images/people/profile-picture-3.jpg" alt="user photo" />
+                </button>
+              </Link>
               <p className="text-black">{localStorage.getItem("name")}</p>
             </div>
           ) : (
