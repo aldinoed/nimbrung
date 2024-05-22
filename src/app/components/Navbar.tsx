@@ -40,7 +40,7 @@ export default function Navbar() {
             <div className="flex">
               <Link href="/posts/create-post">
                 <div className="max-w-10 max-h-10 me-5 rounded-md border-2 border-black">
-                  <img alt="buat postingan" src="image/pencil.png"></img>
+                  <img alt="buat postingan" src="https://res.cloudinary.com/du4zezzcw/image/upload/v1716348215/pencil_ogwf4a.png"></img>
                 </div>
               </Link>
 
@@ -54,7 +54,7 @@ export default function Navbar() {
                   data-dropdown-placement="bottom"
                 >
                   <span className="sr-only">Open user menu</span>
-                  <img className="w-8 h-8 rounded-full" src="/docs/images/people/profile-picture-3.jpg" alt="user photo" />
+                  <img className="w-8 h-8 rounded-full" src="https://res.cloudinary.com/du4zezzcw/image/upload/v1716389749/male_xq7rip.png" alt="user photo" />
                 </button>
               </Link>
               <p className="text-black">{localStorage.getItem("name")}</p>
@@ -63,7 +63,7 @@ export default function Navbar() {
             <div className="flex flex-row">
               <Link href="/posts/create-post">
                 <div className="max-w-10 max-h-10 me-5 rounded-md border-2 border-black">
-                  <img alt="buat postingan" src="https://res.cloudinary.com/du4zezzcw/image/upload/v1716348215/pencil_ogwf4a.png"></img>
+                  <img alt="" src="https://res.cloudinary.com/du4zezzcw/image/upload/v1716348215/pencil_ogwf4a.png"></img>
                 </div>
               </Link>
               <div>

@@ -36,6 +36,7 @@ export default function DetailPost() {
   async function fetchDetailPost() {
     const data = await axios.get("/api/posts/" + param.title);
     setPostId(data.data.data.id);
+    setTimeout(() => {}, 500);
     setTitle(data.data.data.title);
     setContent(data.data.data.content);
     setAuthorId(data.data.data.authorId);
@@ -43,7 +44,7 @@ export default function DetailPost() {
     setPublishDate(parsedDate);
   }
   async function fetchComment() {
-    const data = await axios.get("/api/posts/comment/" + postId);
+    const data = await axios.get(`/api/posts/comment/${postId}`);
     let tempData = [];
 
     for (let item of data.data.data) {
@@ -56,9 +57,13 @@ export default function DetailPost() {
 
   useEffect(() => {
     fetchDetailPost();
-    fetchComment();
     setLoaded(true);
   }, []);
+  useEffect(() => {
+    if (postId !== null) {
+      fetchComment();
+    }
+  }, [postId]);
 
   const hanldeCommentSubmit = async (e: any) => {
     e.preventDefault();
@@ -73,6 +78,7 @@ export default function DetailPost() {
       });
       router.push("/signin");
     } else {
+      const userId = localStorage.getItem("id") ?? null;
       try {
         const response = await fetch("http://localhost:3000/api/posts/comment", {
           method: "POST",
@@ -81,16 +87,23 @@ export default function DetailPost() {
           },
           body: JSON.stringify({
             postId: parseInt(postId!),
-            comment: comment,
+            comment: comment.trim(),
             userId: parseInt(authorId!),
           }),
         });
         let res = await response.json();
+        setComment("");
         if (response.status === 200) {
           Swal.fire({
             title: "Berhasil!",
             text: res.message,
             icon: "success",
+          });
+        } else if (response.status === 400) {
+          Swal.fire({
+            title: "Oops!",
+            text: "Komentar kosong",
+            icon: "warning",
           });
         }
         fetchComment();
@@ -112,9 +125,8 @@ export default function DetailPost() {
       ) : (
         <div className="min-h-screen bg-white pt-0 min-w-screen max-w-screen">
           <Navbar></Navbar>
-          <div className="shadow"></div>
           {/* <div className=""> */}
-          <div className="px-10 pt-12 bg-white mx-auto  max-w-full min-w-full">
+          <div className="px-10 pt-12 bg-white mx-auto min-h-full max-w-full min-w-full">
             <div className="border p-5 rounded-md">
               <h1 className="text-black text-center font-bold text-3xl mb-5">{title}</h1>
               <div className=" max-w-full min-w-full " style={{ marginTop: "3re" }}>
@@ -123,8 +135,8 @@ export default function DetailPost() {
                 <span className="text-slate-600">Dipublikasi {publishDate}</span>
               </div>
             </div>
-            <form onSubmit={hanldeCommentSubmit} className="rounded-md border bg-white mx-auto mt-5 max-w-full min-w-full flex justify-center">
-              <div className=" mt-5 " style={{ maxWidth: "40%", minWidth: "40%" }}>
+            <form onSubmit={hanldeCommentSubmit} className="rounded-md bg-white mx-auto mt-5 max-w-full min-w-full flex justify-center">
+              <div className=" mt-5 " style={{ maxWidth: "60%", minWidth: "60%" }}>
                 <h4 className="text-black font-bold text-3sm mb-5">Komentar</h4>
                 {/* <Image src={""} alt="banner" /> */}
 
@@ -150,12 +162,12 @@ export default function DetailPost() {
                   <h1 className="mt-4 text-center text-black text-lg font-bold">Belum ada komentar</h1>
                 </div>
               ) : (
-                <div className="mx-auto overflow-y-auto max-h-44 flex justify-center max-w-48 min-w-96 flex-col align-items-center mt-4">
+                <div className="mx-auto min-h-[200px] max-h-[200px] max-w-[50%] min-w-[50%] overflow-y-auto flex justify-center flex-col align-items-center mt-4" style={{ scrollbarWidth: "none" }}>
                   {commentData.map((item: any, i: number) => (
-                    <div key={i} className="my-auto rounded-md border min-h-24 min-w-full flex-col align-items-center max-w-full">
+                    <div key={i} className="mb-2 my-auto rounded-md border min-h-24 min-w-full flex-col align-items-center max-w-full">
                       <div className="flex">
                         <img src="https://res.cloudinary.com/du4zezzcw/image/upload/v1716191006/nimbrung_1_idevuj.png" className="rounded-full max-w-10" alt="" />
-                        <div className="flex flex-col">
+                        <div className="flex flex-col mt-2">
                           <span className="">{item.user.fullname}</span>
                           <span className="text-xs text-current">{item.createdAt}</span>
                         </div>

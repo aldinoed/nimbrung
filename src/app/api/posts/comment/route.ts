@@ -5,7 +5,7 @@ export async function POST(request: any) {
   const { userId, postId, comment } = await request.json();
 
   try {
-    if (comment === null) {
+    if (comment === undefined || comment.trim() === "") {
       return NextResponse.json(
         {
           success: false,

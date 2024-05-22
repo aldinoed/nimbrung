@@ -4,78 +4,70 @@ import Cookies from "js-cookie";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
-import {useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function SignIn() {
-  const router = useRouter()
-  console.log(Cookies.get('auth'))
-  if(Cookies.get('auth') === null || Cookies.get('auth') === undefined){
+  const router = useRouter();
+  console.log(Cookies.get("auth"));
+  if (Cookies.get("auth") === null || Cookies.get("auth") === undefined) {
     localStorage.clear();
-  }else{
-    router.push('/')
-
+  } else {
+    router.push("/");
   }
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  useEffect(()=>{
-  }, [])
+  useEffect(() => {}, []);
 
-  const handleSubmit = async (e : any)=>{
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
 
-    try{
-      const response =  await fetch('http://localhost:3000/api/auth/signin', {
+    try {
+      const response = await fetch("http://localhost:3000/api/auth/signin", {
         method: "POST",
-        headers:{
-          "Content-Type": "application/json"
+        headers: {
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           email: email,
-          password: password
-        })
+          password: password,
+        }),
       });
       // console.log(response)
       const data = await response.json();
-      if(response.status === 200){
-        Cookies.set('auth', data.data.token, {expires : 10 / (24 * 60)});
-        localStorage.setItem('id', data.data.user.id)
-        localStorage.setItem('name', data.data.user.fullname)
+      if (response.status === 200) {
+        Cookies.set("auth", data.data.token, { expires: 10 / (24 * 60) });
+            localStorage.setItem("id", data.data.user.id);
+            localStorage.setItem("name", data.data.user.fullname);
         Swal.fire({
-          title : 'Berhasil!',
-          text: 'Berhasil login',
-          icon : 'success'
-        })
-         router.push('/')
-      }else{
+          title: "Berhasil!",
+          text: "Berhasil login",
+          icon: "success",
+        });
+        router.push("/");
+      } else {
         Swal.fire({
-          title : 'Gagal!',
-          text: 'User atau Password Salah',
-          icon : 'error'
-        })
+          title: "Gagal!",
+          text: "User atau Password Salah",
+          icon: "error",
+        });
       }
-    }catch(error){
+    } catch (error) {
       Swal.fire({
-        title : 'Error!',
+        title: "Error!",
         text: String(error),
-        icon : 'error'
-      })
-
+        icon: "error",
+      });
     }
-  }
+  };
 
   return (
     <div className="flex justify-center items-center max-h-screen min-h-screen">
       <div className="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700">
         <form className="space-y-6" onSubmit={handleSubmit}>
-          <h5 className="text-xl text-center font-medium text-gray-900 dark:text-white">
-            Masuk
-          </h5>
+          <h5 className="text-xl text-center font-medium text-gray-900 dark:text-white">Masuk</h5>
           <div>
-            <label
-              htmlFor="email"
-              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >
+            <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
               Email
             </label>
             <input
@@ -90,14 +82,11 @@ export default function SignIn() {
             />
           </div>
           <div>
-            <label
-              htmlFor="password"
-              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >
+            <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
               Password
             </label>
             <input
-            value={password}
+              value={password}
               onChange={(e) => setPassword(e.target.value)}
               type="password"
               name="password"
@@ -115,10 +104,7 @@ export default function SignIn() {
           </button>
           <div className="text-sm font-medium text-gray-500 dark:text-gray-300">
             Belum punya akun?{" "}
-            <a
-              href="/signup"
-              className="text-blue-700 hover:underline dark:text-blue-500"
-            >
+            <a href="/signup" className="text-blue-700 hover:underline dark:text-blue-500">
               Daftar
             </a>
           </div>

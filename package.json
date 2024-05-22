@@ -37,6 +37,7 @@
     "next-auth": "^4.24.7",
     "next-cloudinary": "^6.5.2",
     "pg": "^8.11.5",
+    "preline": "^2.1.0",
     "react": "^18",
     "react-dom": "^18",
     "react-loading": "^2.0.3",

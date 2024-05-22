@@ -1,14 +1,13 @@
 import { NextResponse } from "next/server";
 import prisma from "../../../../../../prisma";
 
-export async function GET(params: any) {
+export async function GET(request: any, { params }: any) {
+  console.log("🚀 ~ GET ~ params:", params);
   //   console.log("🚀 ~ GET ~ params:", params);
   try {
     const { id } = params;
-    const response = await prisma.comment.findMany({ where: { postId: id }, include: { user: true } });
+    const response = await prisma.comment.findMany({ where: { postId: parseInt(id) }, include: { user: true } });
     console.log("🚀 ~ GET ~ response:", response);
-
-    //     console.log("🚀 ~ GET ~ response:", response);
     if (response) {
       return NextResponse.json(
         {
