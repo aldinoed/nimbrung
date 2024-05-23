@@ -6,16 +6,20 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Loading from "../components/Loading";
+import Link from "next/link";
+const moments = require("moment");
+import "moment/locale/id";
+import Loading from "@/app/components/Loading";
 
-interface User {
-  fullname: string;
-  email: string;
-  password: string;
+interface Post {
+  title: string;
+  comment: string;
 }
 
 export default function Profile() {
   const router = useRouter();
+  const [showUserPost, setShowUserPost] = useState(false);
+  const [userPost, setUserPost] = useState<any>([]);
   const [showPassword, setShowPassword] = useState(false);
   const [oriFullName, setOriFullName] = useState("");
   const [oriEmail, setOriEmail] = useState("");
@@ -54,7 +58,23 @@ export default function Profile() {
 
   useEffect(() => {
     async function fetchUserPost() {
-      const data = await axios.get("/api/posts/user/" + userId);
+      try {
+        const data = await axios.get("/api/posts/user/" + userId);
+        let tempData = [];
+
+        for (let item of data.data.data) {
+          item.createdAt = moments(item.createdAt).locale("id").fromNow();
+          tempData.push(item);
+        }
+        setUserPost(tempData);
+        console.log(userPost);
+      } catch (error: any) {
+        Swal.fire({
+          title: "Gagal!",
+          text: "Gagal memuat postinganmu!",
+          icon: "error",
+        });
+      }
     }
     if (userId !== null) {
       fetchUserPost();
@@ -76,6 +96,18 @@ export default function Profile() {
       router.push("/");
     }
   };
+  useEffect(() => {
+    const handleHashChange = () => {
+      setShowUserPost(window.location.hash === "#posts");
+    };
+
+    window.addEventListener("hashchange", handleHashChange);
+    handleHashChange(); // Panggil fungsi saat komponen dimuat
+
+    return () => {
+      window.removeEventListener("hashchange", handleHashChange);
+    };
+  }, []);
 
   const handleSubmit = () => {};
   const handleReset = (e: any) => {
@@ -96,7 +128,7 @@ export default function Profile() {
       <script src="../../../node_modules/preline/dist/preline.js"></script>
       <div className=" max-w-screen min-w-screen max-h-screen min-h-screen bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
         <Navbar></Navbar>
-        <div className="flex justify-evenly min-h-screen max-h-screen px-5 pt-6">
+        <div className="flex justify-evenly min-h-full px-5 pt-6">
           <div className="flex border flex-col items-center max-h-44">
             {image === "" ? (
               <img className="w-24 h-24 mb-3 rounded-full shadow-lg" src="https://res.cloudinary.com/du4zezzcw/image/upload/v1716389749/male_xq7rip.png" alt="Bonnie image" />
@@ -106,14 +138,14 @@ export default function Profile() {
             <h5 className="mb-1 text-xl font-medium text-gray-900 dark:text-white">{oriFullName}</h5>
             <div className="pt-4">
               <div className="flex flex-row w-60 p-2 max-w-sm rounded  shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px]">
-                <a href="">
+                <a href="/profile">
                   <h1 className="pl-3 text-[14px] text-ellipsis overflow-hidden ">Tentang Saya </h1>
                 </a>
               </div>
             </div>
             <div className="pt-4">
               <div className="flex flex-row w-60 p-2 max-w-sm rounded  shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px]">
-                <a href="#instruction">
+                <a href="#posts">
                   <h1 className="pl-3 text-[14px] text-ellipsis overflow-hidden ">Postingan</h1>
                 </a>
               </div>
@@ -127,93 +159,110 @@ export default function Profile() {
               </button>
             </div>
           </div>
-          <form className="min-h-[15%] max-h-[15%]" onSubmit={handleSubmit}>
-            <div className="flex flex-col max-h-[60%] min-h-[60%] py-4 rounded px-6 shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px] w-full ">
-              <div className="md:flex flex flex-row md:items-center  mb-6">
-                <div className="md:w-1/3">
-                  <label className="block text-gray-600 font-bold md:text-left mb-1 md:mb-0 pr-4 text-left" htmlFor="inline-full-name">
-                    Nama
-                  </label>
-                </div>
-                <div className="md:w-2/3">
-                  <input
-                    name="fullName"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    className="bg-white appearance-none border-2 border-gray-200 rounded w-full py-2  text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-indigo-600"
-                    id="inline-full-name"
-                    type="text"
-                    required
-                  ></input>
-                </div>
-              </div>
-              <div className="md:flex  flex flex-row  md:items-center mb-6">
-                <div className="md:w-1/3">
-                  <label className="block text-gray-600 font-bold md:text-left mb-1 md:mb-0 pr-4 text-left" htmlFor="inline-full-name">
-                    Email
-                  </label>
-                </div>
-                <div className="md:w-2/3">
-                  <div className="bg-white appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-indigo-600" id="inline-full-name">
-                    {email}
+          {showUserPost ? (
+            <div className="min-h-full max-h-full min-w-[60%] max-w-[60%] overflow-y-auto" style={{ scrollbarWidth: "none" }}>
+              {userPost.map((item: any, i: number) => (
+                <div key={i} className="p-3 mb-3 border rounded-md min-h-[40%] max-h-[40%] min-w-full max-w-full">
+                  <Link href={`/posts/${item.title}`}>
+                    <h1 className="font-bold text-xl">{item.title}</h1>
+                  </Link>
+                  <p>{item.content}</p>
+                  <div className="mb-0">
+                    <p className="text-slate-600 ">{item.createdAt}</p>
                   </div>
                 </div>
-              </div>
-              <div className="md:flex  flex flex-row  md:items-center mb-6">
-                <div className="md:w-1/3">
-                  <label className="block text-gray-600 font-bold md:text-left mb-1 md:mb-0 pr-4 text-left" htmlFor="inline-full-name">
-                    Password
-                  </label>
+              ))}
+            </div>
+          ) : (
+            // </div>
+            <form className="min-h-full max-h-full min-w-[60%] max-w-[60%] " onSubmit={handleSubmit}>
+              <div className="flex flex-col  py-4 rounded px-6 shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px] w-full ">
+                <div className="md:flex flex flex-row md:items-center  mb-6">
+                  <div className="md:w-1/3">
+                    <label className="block text-gray-600 font-bold md:text-left mb-1 md:mb-0 pr-4 text-left" htmlFor="inline-full-name">
+                      Nama
+                    </label>
+                  </div>
+                  <div className="md:w-2/3">
+                    <input
+                      name="fullName"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className="bg-white appearance-none border-2 border-gray-200 rounded w-full py-2  text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-indigo-600"
+                      id="inline-full-name"
+                      type="text"
+                      required
+                    ></input>
+                  </div>
                 </div>
-                <div className="md:w-2/3 flex">
-                  <input
-                    id="hs-toggle-password"
-                    type={showPassword ? "text" : "password"}
-                    className="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
-                    placeholder="Enter password"
-                    onChange={(e) => setPassword(e.target.value)}
-                    value={password}
-                  />
-                  <button type="button" onClick={togglePasswordVisibility} className=" p-3.5 rounded-e-md">
-                    {showPassword ? (
-                      <svg className="flex-shrink-0 size-3.5 text-gray-400 dark:text-neutral-600" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                      </svg>
-                    ) : (
-                      <svg className="flex-shrink-0 size-3.5 text-gray-400 dark:text-neutral-600" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
-                        <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path>
-                        <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path>
-                        <line x1="2" x2="22" y1="2" y2="22"></line>
-                      </svg>
-                    )}
-                  </button>
+                <div className="md:flex  flex flex-row  md:items-center mb-6">
+                  <div className="md:w-1/3">
+                    <label className="block text-gray-600 font-bold md:text-left mb-1 md:mb-0 pr-4 text-left" htmlFor="inline-full-name">
+                      Email
+                    </label>
+                  </div>
+                  <div className="md:w-2/3">
+                    <div className="bg-white appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-indigo-600" id="inline-full-name">
+                      {email}
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="md:flex  flex-row md:items-center mb-1">
-                <div className="pr-14">
-                  <div className="xl:max-w-[1280px] w-full h-full">
+                <div className="md:flex  flex flex-row  md:items-center mb-6">
+                  <div className="md:w-1/3">
+                    <label className="block text-gray-600 font-bold md:text-left mb-1 md:mb-0 pr-4 text-left" htmlFor="inline-full-name">
+                      Password
+                    </label>
+                  </div>
+                  <div className="md:w-2/3 flex">
+                    <input
+                      id="hs-toggle-password"
+                      type={showPassword ? "text" : "password"}
+                      className="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
+                      placeholder="Enter password"
+                      onChange={(e) => setPassword(e.target.value)}
+                      value={password}
+                    />
+                    <button type="button" onClick={togglePasswordVisibility} className=" p-3.5 rounded-e-md">
+                      {showPassword ? (
+                        <svg className="flex-shrink-0 size-3.5 text-gray-400 dark:text-neutral-600" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                          <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                      ) : (
+                        <svg className="flex-shrink-0 size-3.5 text-gray-400 dark:text-neutral-600" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
+                          <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path>
+                          <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path>
+                          <line x1="2" x2="22" y1="2" y2="22"></line>
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                </div>
+                <div className="md:flex  flex-row md:items-center mb-1">
+                  <div className="pr-14">
+                    <div className="xl:max-w-[1280px] w-full h-full">
+                      <div className="">
+                        {/* Ganti button dengan Link */}
+                        <button className="outline bg-cream text-orange hover:bg-white font-bold py-2 px-10  border-orange hover:text-orange outline-cream rounded" onClick={handleReset}>
+                          Reset
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col  w-full h-full">
                     <div className="">
                       {/* Ganti button dengan Link */}
-                      <button className="outline bg-cream text-orange hover:bg-white font-bold py-2 px-10  border-orange hover:text-orange outline-cream rounded" onClick={handleReset}>
-                        Reset
+
+                      <button className="outline bg-orange text-white hover:bg-white font-bold w-[345px] py-2 border-orange hover:text-orange outline-orange rounded" type="submit">
+                        Save Changes
                       </button>
                     </div>
                   </div>
                 </div>
-                <div className="flex flex-col  w-full h-full">
-                  <div className="">
-                    {/* Ganti button dengan Link */}
-
-                    <button className="outline bg-orange text-white hover:bg-white font-bold w-[345px] py-2 border-orange hover:text-orange outline-orange rounded" type="submit">
-                      Save Changes
-                    </button>
-                  </div>
-                </div>
               </div>
-            </div>
-          </form>
+            </form>
+          )}
         </div>
       </div>
     </>
