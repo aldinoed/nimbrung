@@ -9,10 +9,8 @@ export default function HomePage() {
   const [posts, setPosts] = useState([]);
   useEffect(() => {
     async function fetchPostData() {
-      const response = await axios.get("http://localhost:3000/api/posts");
-      console.log("🚀 ~ fetchPostData ~ response:", response)
+      const response = await axios.get("/api/posts");
       setPosts(response.data.data);
-      console.log("🚀 ~ fetchPostData ~ response.data.data:", response.data.data)
     }
 
     fetchPostData();

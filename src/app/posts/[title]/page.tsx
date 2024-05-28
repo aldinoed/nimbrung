@@ -86,7 +86,7 @@ export default function DetailPost() {
     } else {
       const userId = localStorage.getItem("id");
       try {
-        const response = await fetch("http://localhost:3000/api/posts/comment", {
+        const response = await fetch("/api/posts/comment", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

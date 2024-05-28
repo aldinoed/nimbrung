@@ -4,12 +4,12 @@ import Swal from "sweetalert2";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import {useRouter } from "next/navigation";
-import {Router as NexRouter} from "next/router"
+import { useRouter } from "next/navigation";
+import { Router as NexRouter } from "next/router";
 
 export default function SignUp() {
   // const navigate = useNavigate();
-  const router =  useRouter();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullname, setFullname] = useState("");
@@ -18,7 +18,7 @@ export default function SignUp() {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:3000/api/auth/signup", {
+      const response = await fetch("/api/auth/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -36,7 +36,7 @@ export default function SignUp() {
           icon: "success",
         });
         // navigate('/signin')
-        router.push('/signin');
+        router.push("/signin");
       } else {
         Swal.fire({
           title: "Gagal!",
@@ -57,14 +57,9 @@ export default function SignUp() {
     <div className="flex justify-center items-center max-h-screen min-h-screen">
       <div className="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700">
         <form className="space-y-6" onSubmit={handleSubmit}>
-          <h5 className="text-xl font-medium text-gray-900 text-center dark:text-white">
-            Daftar
-          </h5>
+          <h5 className="text-xl font-medium text-gray-900 text-center dark:text-white">Daftar</h5>
           <div>
-            <label
-              htmlFor="email"
-              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >
+            <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
               Email
             </label>
             <input
@@ -79,10 +74,7 @@ export default function SignUp() {
             />
           </div>
           <div>
-            <label
-              htmlFor="fullname"
-              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >
+            <label htmlFor="fullname" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
               Nama
             </label>
             <input
@@ -96,10 +88,7 @@ export default function SignUp() {
             />
           </div>
           <div>
-            <label
-              htmlFor="password"
-              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >
+            <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
               Password
             </label>
             <input
@@ -121,10 +110,7 @@ export default function SignUp() {
           </button>
           <div className="text-sm font-medium text-gray-500 dark:text-gray-300">
             Sudah punya akun?{" "}
-            <a
-              href="/signin"
-              className="text-blue-700 hover:underline dark:text-blue-500"
-            >
+            <a href="/signin" className="text-blue-700 hover:underline dark:text-blue-500">
               Masuk
             </a>
           </div>
