@@ -1,6 +1,7 @@
 "use client";
 import Navbar from "@/app/components/Navbar";
 import axios from "axios";
+import { CldImage } from "next-cloudinary";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
@@ -26,12 +27,19 @@ export default function DetailPost() {
   const param = useParams();
   const [commentData, setCommentData] = useState<any>([]);
   const [authorId, setAuthorId] = useState(null);
+  const [authorName, setAuthorName] = useState(null);
   const [postId, setPostId] = useState(null);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [publishDate, setPublishDate] = useState("");
   const [comment, setComment] = useState("");
   const [loaded, setLoaded] = useState(false);
+  const [imagePublicUrl, setImagePublicUrl] = useState("");
+
+  async function fetchUser(id: any) {
+    const data = await axios.get("/api/users/" + id);
+    setAuthorName(data.data.data.user.fullname);
+  }
 
   async function fetchDetailPost() {
     const data = await axios.get("/api/posts/" + param.title);
@@ -42,6 +50,7 @@ export default function DetailPost() {
     setAuthorId(data.data.data.authorId);
     let parsedDate = moments(data.data.data.createdAt).locale("id").fromNow();
     setPublishDate(parsedDate);
+    setImagePublicUrl(data.data.data.image);
   }
   async function fetchComment() {
     const data = await axios.get(`/api/posts/comment/${postId}`);
@@ -51,13 +60,13 @@ export default function DetailPost() {
       item.createdAt = moments(item.createdAt).locale("id").fromNow();
       tempData.push(item);
     }
-
+    fetchUser(data.data.data.authorId);
     setCommentData(tempData);
+    setLoaded(true);
   }
 
   useEffect(() => {
     fetchDetailPost();
-    setLoaded(true);
   }, []);
   useEffect(() => {
     if (postId !== null) {
@@ -67,9 +76,6 @@ export default function DetailPost() {
 
   const hanldeCommentSubmit = async (e: any) => {
     e.preventDefault();
-    //     console.log("🚀 ~ DetailPost ~ comment:", comment);
-    //     const cleanedComment = whiteSpaceCommentCleaner(comment);
-    //     console.log("🚀 ~ hanldeCommentSubmit ~ cleanedComment:", cleanedComment);
     if (Cookies.get("auth") === null || Cookies.get("auth") === undefined) {
       Swal.fire({
         title: "oops!",
@@ -78,7 +84,7 @@ export default function DetailPost() {
       });
       router.push("/signin");
     } else {
-      const userId = localStorage.getItem("id") ?? null;
+      const userId = localStorage.getItem("id");
       try {
         const response = await fetch("http://localhost:3000/api/posts/comment", {
           method: "POST",
@@ -119,7 +125,7 @@ export default function DetailPost() {
   return (
     <>
       {loaded === false ? (
-        <div>
+        <div className="flex justify-center items-center max-w-screen min-w-screen max-h-screen min-h-screen bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
           <Loading type={"spin"} color={"#aaaaaa"} />
         </div>
       ) : (
@@ -127,12 +133,13 @@ export default function DetailPost() {
           <Navbar></Navbar>
           {/* <div className=""> */}
           <div className="px-10 pt-12 bg-white mx-auto min-h-full max-w-full min-w-full">
-            <div className="border p-5 rounded-md">
+            <div className="border flex flex-col p-5 rounded-md">
               <h1 className="text-black text-center font-bold text-3xl mb-5">{title}</h1>
-              <div className=" max-w-full min-w-full " style={{ marginTop: "3re" }}>
-                {/* <Image src={""} alt="banner" /> */}
-                <p className="text-black text-center">{content}</p>
-                <span className="text-slate-600">Dipublikasi {publishDate}</span>
+              <div className=" max-w-full min-w-full flex flex-col " style={{ marginTop: "3re" }}>
+                {imagePublicUrl != null ? <div className="flex justify-center">{imagePublicUrl && <img src={imagePublicUrl} className="self-center max-w-44 max-h-44" alt="Description of my image" />}</div> : <div></div>}
+                <p className="">{content}</p>
+                <span className="text-slate-600 pt-3">Diposting {publishDate}</span>
+                <span className="text-slate-600">Oleh {authorName}</span>
               </div>
             </div>
             <form onSubmit={hanldeCommentSubmit} className="rounded-md bg-white mx-auto mt-5 max-w-full min-w-full flex justify-center">
@@ -166,9 +173,8 @@ export default function DetailPost() {
                   {commentData.map((item: any, i: number) => (
                     <div key={i} className="mb-2 my-auto rounded-md border min-h-24 min-w-full flex-col align-items-center max-w-full">
                       <div className="flex">
-                        <img src="https://res.cloudinary.com/du4zezzcw/image/upload/v1716191006/nimbrung_1_idevuj.png" className="rounded-full max-w-10" alt="" />
                         <div className="flex flex-col mt-2">
-                          <span className="">{item.user.fullname}</span>
+                          <span className="font-bold">{item.user.fullname}</span>
                           <span className="text-xs text-current">{item.createdAt}</span>
                         </div>
                       </div>

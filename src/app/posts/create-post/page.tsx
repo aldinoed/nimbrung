@@ -1,7 +1,8 @@
 "use client";
 import { content } from "flowbite-react/tailwind";
 import { headers } from "next/headers";
-import { useState } from "react";
+import { CldUploadButton, CldUploadWidget } from "next-cloudinary";
+import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
@@ -19,27 +20,36 @@ export default function Publish() {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [imagePublicUrl, setImagePublicUrl] = useState("");
+  let sessionId = localStorage.getItem("id");
+  let sessionName = localStorage.getItem("name");
 
-  if (Cookies.get("auth") == null || Cookies.get("auth") == undefined || localStorage.getItem("id") == null || localStorage.getItem("name") == null) {
+  if (Cookies.get("auth") == null || Cookies.get("auth") == undefined || sessionId == null || sessionName == null) {
     Swal.fire({
       title: "oops!",
-      text: "Silahkan masuk terlebih dahulu!",
+      text: "Silahkan login dulu ya...",
       icon: "info",
     });
     router.push("/signin");
   }
-  // useEffect(()=>{
-  //     console.log(title, content)
-  // },[title, content])
 
   //   const editor = useEditor({
   //     extensions: [StarterKit, Underline, Link, Superscript, SubScript, Highlight, TextAlign.configure({ types: ["heading", "paragraph"] })],
   //     content,
   //   });
+  useEffect(() => {}, [imagePublicUrl]);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    const id = localStorage.getItem("id") ?? "";
+    if (Cookies.get("auth") == null || Cookies.get("auth") == undefined || sessionId == null || sessionName == null) {
+      Swal.fire({
+        title: "oops!",
+        text: "Silahkan login dulu ya...",
+        icon: "info",
+      });
+      router.push("/signin");
+    }
+    sessionId = localStorage.getItem("id") ?? "";
     try {
       const response = await fetch("http://localhost:3000/api/posts/create-post", {
         method: "POST",
@@ -47,11 +57,10 @@ export default function Publish() {
         body: JSON.stringify({
           title: title,
           content: content,
-          authorId: parseInt(id, 10),
-          image: "jkdhajhdjahjad",
+          authorId: parseInt(sessionId, 10),
+          image: imagePublicUrl,
         }),
       });
-      console.log("🚀 ~ handleSubmit ~ response:", response);
       if (response.status === 200) {
         Swal.fire({
           title: "Berhasil!",
@@ -76,7 +85,8 @@ export default function Publish() {
   };
 
   return (
-    <div className="min-h-screen max-h-screen flex justify-center items-center bg-white">
+    <div className="min-h-screen max-h-screen flex flex-col justify-evenly items-center bg-white">
+      <h1 className="font-sans font-bold antialiased">Mau sharing cerita apa hari ini?</h1>
       <form className="max-w-60 mx-auto" onSubmit={handleSubmit}>
         <div className="mb-5">
           <label htmlFor="title" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -104,6 +114,22 @@ export default function Publish() {
             className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             required
           />
+          <div>
+            <CldUploadWidget
+              uploadPreset="nimbrung"
+              onSuccess={(result: any) => {
+                if (result && result.info && result.info.secure_url) {
+                  setImagePublicUrl(result.info.secure_url);
+                } else {
+                  console.error("Upload failed or no secure_url found in result.");
+                }
+              }}
+            >
+              {({ open }) => {
+                return <button onClick={() => open()}>Upload an Image</button>;
+              }}
+            </CldUploadWidget>
+          </div>
           {/* <RichTextEditor editor={editor}>
             <RichTextEditor.Toolbar sticky stickyOffset={60}>
               <RichTextEditor.ControlsGroup>

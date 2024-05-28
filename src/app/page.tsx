@@ -17,7 +17,6 @@ export default function Home() {
   useEffect(() => {
     async function fetchPostData() {
       const response = await axios.get("http://localhost:3000/api/posts");
-      console.log("🚀 ~ fetchPostData ~ response:", response);
       if (response.data.data !== undefined) {
         setPosts(response.data.data);
         setLoaded(true);
@@ -37,7 +36,7 @@ export default function Home() {
 
         <div className="flex  justify-center align-items-center  bg-white" style={{ marginTop: "0" }}>
           {loaded === false ? (
-            <div className="relative min-h-screen min-w-screen flex align-items-center " style={{ minHeight: "0%", minWidth: "50%" }}>
+            <div className="mt-20 relative min-h-screen min-w-screen flex justify-center align-items-center " style={{ minHeight: "0%", minWidth: "80%" }}>
               <Loading type={"spin"} color={"#aaaaaa"} />
             </div>
           ) : posts.length === 0 ? (

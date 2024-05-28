@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation";
 
 export default function SignIn() {
   const router = useRouter();
-  console.log(Cookies.get("auth"));
   if (Cookies.get("auth") === null || Cookies.get("auth") === undefined) {
     localStorage.clear();
   } else {
@@ -16,8 +15,6 @@ export default function SignIn() {
   }
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  useEffect(() => {}, []);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -37,8 +34,8 @@ export default function SignIn() {
       const data = await response.json();
       if (response.status === 200) {
         Cookies.set("auth", data.data.token, { expires: 10 / (24 * 60) });
-            localStorage.setItem("id", data.data.user.id);
-            localStorage.setItem("name", data.data.user.fullname);
+        localStorage.setItem("id", data.data.user.id);
+        localStorage.setItem("name", data.data.user.fullname);
         Swal.fire({
           title: "Berhasil!",
           text: "Berhasil login",

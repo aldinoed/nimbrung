@@ -13,7 +13,6 @@ export async function POST(request: any) {
         image: image,
       },
     });
-    console.log("🚀 ~ POST ~ post:", post);
 
     return NextResponse.json(
       {

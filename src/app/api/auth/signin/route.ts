@@ -16,15 +16,14 @@ export async function POST(request: any) {
 
     if (user.length === 1) {
       const valid = password === user[0].password;
-      console.log("🚀 ~ POST ~ valid:", valid);
       if (email === user[0].email && valid == true) {
         const token = jwt.sign({ id: user[0].id }, secretKey, {
           expiresIn: "15m",
         });
-        //         res.cookie("refresh_token", token, {
-        //           httpOnly: true,
-        //           maxAge: 60 * 60 * 1000,
-        //         });
+        //   res.cookie("refresh_token", token, {
+        //     httpOnly: true,
+        //     maxAge: 60 * 60 * 1000,
+        //   });
         //         res.status(200).json({ token: token, user: data[0] });
         //         next();
         //       } else {

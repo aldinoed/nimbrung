@@ -37,3 +37,16 @@ export async function GET(req: any, { params }: any) {
     );
   }
 }
+
+export async function DELETE(request: any, { params }: any) {
+  const { title } = params;
+
+  try {
+    const data = await prisma.post.findFirst({ where: { title: title } });
+    const response = await prisma.post.delete({ where: { id: data!.id } });
+    console.log("🚀 ~ DELETE ~ response:", response);
+    return NextResponse.json({ sucess: true, message: "Berhasil hapus postingan!" }, { status: 200 });
+  } catch (error: any) {
+    return NextResponse.json({ sucess: false, message: "Internal Server Error!" }, { status: 500 });
+  }
+}

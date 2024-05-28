@@ -29,8 +29,10 @@ export default function Profile() {
   const [email, setEmail] = useState("");
   const [userId, setUserId] = useState(null);
   const [password, setPassword] = useState("");
+  let sessionId = localStorage.getItem("id");
+  let sessionName = localStorage.getItem("name");
 
-  if (Cookies.get("auth") === null || Cookies.get("auth") === undefined || localStorage.getItem("id") == null || localStorage.getItem("name") == null) {
+  if (Cookies.get("auth") === null || Cookies.get("auth") === undefined || sessionId == null || sessionName == null) {
     localStorage.clear();
     router.push("/");
   }
@@ -40,7 +42,7 @@ export default function Profile() {
 
   useEffect(() => {
     async function fetchUser() {
-      const data = await axios.get("http://localhost:3000/api/users/" + localStorage.getItem("id"));
+      const data = await axios.get("/api/users/" + sessionId);
       setFullName(data.data.data.user.fullname);
       setUserId(data.data.data.user.id);
       setEmail(data.data.data.user.email);
@@ -67,7 +69,6 @@ export default function Profile() {
           tempData.push(item);
         }
         setUserPost(tempData);
-        console.log(userPost);
       } catch (error: any) {
         Swal.fire({
           title: "Gagal!",
@@ -109,7 +110,77 @@ export default function Profile() {
     };
   }, []);
 
-  const handleSubmit = () => {};
+  const deleteHandler = async (title: String) => {
+    sessionId = localStorage.getItem("id");
+    sessionName = localStorage.getItem("name");
+    if (Cookies.get("auth") === null || Cookies.get("auth") === undefined || sessionId == null || sessionName == null) {
+      localStorage.clear();
+      Swal.fire({
+        title: "Oops!",
+        text: "Kamu belum login nih!",
+        icon: "warning",
+      });
+      router.push("/");
+    }
+    try {
+      const response = await axios.delete("/api/posts/" + title);
+      if (response.status === 200) {
+        Swal.fire({
+          title: "Berhasil!",
+          text: "Postinganmu berhasil dihapus",
+          icon: "success",
+        });
+        const newPosts = userPost.filter((item: any) => item.title !== title);
+        setUserPost(newPosts);
+      } else {
+        Swal.fire({
+          title: "Gagal!",
+          text: "Gagal ngehapus postinganmu",
+          icon: "error",
+        });
+      }
+    } catch (error: any) {
+      Swal.fire({
+        title: "Error!",
+        text: "Yah... sistem lagi gangguan nih!",
+        icon: "error",
+      });
+    }
+  };
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch(`/api/users/${userId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: fullName,
+          password: password,
+        }),
+      });
+      if (response.status === 200) {
+        Swal.fire({
+          title: "Berhasil!",
+          text: "Berhasil update profile!",
+          icon: "success",
+        });
+      } else {
+        Swal.fire({
+          title: "Gagal!",
+          text: "Gagal update profile!",
+          icon: "error",
+        });
+      }
+    } catch (error: any) {
+      Swal.fire({
+        title: "Error!",
+        text: "Yah... sistem lagi gangguan nih!",
+        icon: "error",
+      });
+    }
+  };
   const handleReset = (e: any) => {
     e.preventDefault();
     setFullName(oriFullName);
@@ -119,7 +190,7 @@ export default function Profile() {
 
   return fullName == "" ? (
     <>
-      <div className="flex justify-center items-center">
+      <div className="flex justify-center items-center max-w-screen min-w-screen max-h-screen min-h-screen bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
         <Loading type={"spin"} color={"#aaaaaa"} />
       </div>
     </>
@@ -162,13 +233,18 @@ export default function Profile() {
           {showUserPost ? (
             <div className="min-h-full max-h-full min-w-[60%] max-w-[60%] overflow-y-auto" style={{ scrollbarWidth: "none" }}>
               {userPost.map((item: any, i: number) => (
-                <div key={i} className="p-3 mb-3 border rounded-md min-h-[40%] max-h-[40%] min-w-full max-w-full">
-                  <Link href={`/posts/${item.title}`}>
-                    <h1 className="font-bold text-xl">{item.title}</h1>
-                  </Link>
-                  <p>{item.content}</p>
-                  <div className="mb-0">
-                    <p className="text-slate-600 ">{item.createdAt}</p>
+                <div key={i} className="overflow-y-auto p-3 mb-3 border rounded-md min-h-[50%] max-h-[50%] min-w-full max-w-full flex justify-between" style={{ scrollbarWidth: "none" }}>
+                  <div>
+                    <Link href={`/posts/${item.title}`}>
+                      <h1 className="font-bold text-xl">{item.title}</h1>
+                    </Link>
+                    <p>{item.content}</p>
+                    <div className="mb-0">
+                      <p className="text-slate-600 ">{item.createdAt}</p>
+                    </div>
+                  </div>
+                  <div className="self-center">
+                    <button onClick={() => deleteHandler(item.title)}>Hapus</button>
                   </div>
                 </div>
               ))}
@@ -240,22 +316,17 @@ export default function Profile() {
                   </div>
                 </div>
                 <div className="md:flex  flex-row md:items-center mb-1">
-                  <div className="pr-14">
+                  <div className="me-4 shadow border rounded-md border-black">
                     <div className="xl:max-w-[1280px] w-full h-full">
-                      <div className="">
-                        {/* Ganti button dengan Link */}
-                        <button className="outline bg-cream text-orange hover:bg-white font-bold py-2 px-10  border-orange hover:text-orange outline-cream rounded" onClick={handleReset}>
-                          Reset
-                        </button>
-                      </div>
+                      <button className=" bg-cream text-orange hover:bg-white font-bold py-2 px-8 border-orange hover:text-orange outline-cream rounded" onClick={handleReset}>
+                        Reset
+                      </button>
                     </div>
                   </div>
-                  <div className="flex flex-col  w-full h-full">
-                    <div className="">
-                      {/* Ganti button dengan Link */}
-
-                      <button className="outline bg-orange text-white hover:bg-white font-bold w-[345px] py-2 border-orange hover:text-orange outline-orange rounded" type="submit">
-                        Save Changes
+                  <div className="rounded-md bg-blue-600 hover:bg-blue-800 flex justify-center">
+                    <div className="xl:max-w-[1280px]  w-full h-full">
+                      <button className="text-white text-center text-orange   py-2 px-8 border-orange hover:text-orange outline-cream rounded" type="submit">
+                        Update
                       </button>
                     </div>
                   </div>
