@@ -8,13 +8,17 @@ import { useRouter } from "next/navigation";
 
 export default function SignIn() {
   const router = useRouter();
-  if (Cookies.get("auth") === null || Cookies.get("auth") === undefined) {
-    localStorage.clear();
-  } else {
-    router.push("/");
-  }
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    if (Cookies.get("auth") === null || Cookies.get("auth") === undefined) {
+      localStorage.clear();
+    } else {
+      router.push("/");
+    }
+  }, []);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
