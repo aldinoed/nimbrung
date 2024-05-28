@@ -196,7 +196,7 @@ export default function Profile() {
     </>
   ) : (
     <>
-      <script src="../../../node_modules/preline/dist/preline.js"></script>
+      <script src="../../../node_modules/preline/dist/preline.js" async></script>
       <div className=" max-w-screen min-w-screen max-h-screen min-h-screen bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
         <Navbar></Navbar>
         <div className="flex justify-evenly min-h-full px-5 pt-6">
