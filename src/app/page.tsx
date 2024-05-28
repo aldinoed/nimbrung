@@ -16,7 +16,7 @@ export default function Home() {
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     async function fetchPostData() {
-      const response = await axios.get("http://localhost:3000/api/posts");
+      const response = await axios.get("/api/posts");
       if (response.data.data !== undefined) {
         setPosts(response.data.data);
         setLoaded(true);
