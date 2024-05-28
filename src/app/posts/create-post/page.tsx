@@ -21,26 +21,16 @@ export default function Publish() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [imagePublicUrl, setImagePublicUrl] = useState("");
-  let sessionId = localStorage.getItem("id");
-  let sessionName = localStorage.getItem("name");
-
-  if (Cookies.get("auth") == null || Cookies.get("auth") == undefined || sessionId == null || sessionName == null) {
-    Swal.fire({
-      title: "oops!",
-      text: "Silahkan login dulu ya...",
-      icon: "info",
-    });
-    router.push("/signin");
-  }
 
   //   const editor = useEditor({
   //     extensions: [StarterKit, Underline, Link, Superscript, SubScript, Highlight, TextAlign.configure({ types: ["heading", "paragraph"] })],
   //     content,
   //   });
-  useEffect(() => {}, [imagePublicUrl]);
 
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
+  useEffect(() => {
+    const sessionId = localStorage.getItem("id");
+    const sessionName = localStorage.getItem("name");
+
     if (Cookies.get("auth") == null || Cookies.get("auth") == undefined || sessionId == null || sessionName == null) {
       Swal.fire({
         title: "oops!",
@@ -49,7 +39,21 @@ export default function Publish() {
       });
       router.push("/signin");
     }
-    sessionId = localStorage.getItem("id") ?? "";
+  }, []);
+  useEffect(() => {}, [imagePublicUrl]);
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    const sessionId = localStorage.getItem("id");
+    const sessionName = localStorage.getItem("name");
+    if (Cookies.get("auth") == null || Cookies.get("auth") == undefined || sessionId == null || sessionName == null) {
+      Swal.fire({
+        title: "oops!",
+        text: "Silahkan login dulu ya...",
+        icon: "info",
+      });
+      router.push("/signin");
+    }
     try {
       const response = await fetch("http://localhost:3000/api/posts/create-post", {
         method: "POST",
@@ -57,7 +61,7 @@ export default function Publish() {
         body: JSON.stringify({
           title: title,
           content: content,
-          authorId: parseInt(sessionId, 10),
+          authorId: parseInt(sessionId!, 10),
           image: imagePublicUrl,
         }),
       });

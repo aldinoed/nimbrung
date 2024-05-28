@@ -29,18 +29,19 @@ export default function Profile() {
   const [email, setEmail] = useState("");
   const [userId, setUserId] = useState(null);
   const [password, setPassword] = useState("");
-  let sessionId = localStorage.getItem("id");
-  let sessionName = localStorage.getItem("name");
 
-  if (Cookies.get("auth") === null || Cookies.get("auth") === undefined || sessionId == null || sessionName == null) {
-    localStorage.clear();
-    router.push("/");
-  }
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
   useEffect(() => {
+    const sessionId = localStorage.getItem("id");
+    const sessionName = localStorage.getItem("name");
+
+    if (Cookies.get("auth") === null || Cookies.get("auth") === undefined || sessionId == null || sessionName == null) {
+      localStorage.clear();
+      router.push("/");
+    }
     async function fetchUser() {
       const data = await axios.get("/api/users/" + sessionId);
       setFullName(data.data.data.user.fullname);
@@ -111,8 +112,8 @@ export default function Profile() {
   }, []);
 
   const deleteHandler = async (title: String) => {
-    sessionId = localStorage.getItem("id");
-    sessionName = localStorage.getItem("name");
+    const sessionId = localStorage.getItem("id");
+    const sessionName = localStorage.getItem("name");
     if (Cookies.get("auth") === null || Cookies.get("auth") === undefined || sessionId == null || sessionName == null) {
       localStorage.clear();
       Swal.fire({
