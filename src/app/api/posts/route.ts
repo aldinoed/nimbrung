@@ -38,12 +38,3 @@ export async function GET() {
     );
   }
 }
-
-export async function DELETE(request: any, { params }: any) {
-  const id = parseInt(params.id);
-  const response = await prisma.post.delete({
-    where: {
-      id,
-    },
-  });
-}

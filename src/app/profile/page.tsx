@@ -319,14 +319,14 @@ export default function Profile() {
                 <div className="md:flex  flex-row md:items-center mb-1">
                   <div className="me-4 shadow border rounded-md border-black">
                     <div className="xl:max-w-[1280px] w-full h-full">
-                      <button className=" bg-cream text-orange hover:bg-white font-bold py-2 px-8 border-orange hover:text-orange outline-cream rounded" onClick={handleReset}>
+                      <button className=" bg-cream text-orange hover:bg-white font-bold py-2 px-8 hover:text-orange outline-cream rounded" onClick={handleReset}>
                         Reset
                       </button>
                     </div>
                   </div>
                   <div className="rounded-md bg-blue-600 hover:bg-blue-800 flex justify-center">
                     <div className="xl:max-w-[1280px]  w-full h-full">
-                      <button className="text-white text-center text-orange   py-2 px-8 border-orange hover:text-orange outline-cream rounded" type="submit">
+                      <button className="text-white text-center text-orange py-2 px-8  hover:text-orange outline-cream rounded" type="submit">
                         Update
                       </button>
                     </div>

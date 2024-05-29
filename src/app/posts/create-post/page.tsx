@@ -8,13 +8,10 @@ import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import "@mantine/tiptap/styles.css";
 import { RichTextEditor, Link } from "@mantine/tiptap";
-// import { useEditor } from "@tiptap/react";
-// import Highlight from "@tiptap/extension-highlight";
-// import StarterKit from "@tiptap/starter-kit";
-// import Underline from "@tiptap/extension-underline";
-// import TextAlign from "@tiptap/extension-text-align";
-// import Superscript from "@tiptap/extension-superscript";
-// import SubScript from "@tiptap/extension-subscript";
+import dynamic from "next/dynamic";
+import "react-quill/dist/quill.snow.css";
+
+const QuillEditor = dynamic(() => import("react-quill"), { ssr: false });
 
 export default function Publish() {
   const router = useRouter();
@@ -22,10 +19,15 @@ export default function Publish() {
   const [content, setContent] = useState("");
   const [imagePublicUrl, setImagePublicUrl] = useState("");
 
-  //   const editor = useEditor({
-  //     extensions: [StarterKit, Underline, Link, Superscript, SubScript, Highlight, TextAlign.configure({ types: ["heading", "paragraph"] })],
-  //     content,
-  //   });
+  const quillModules = {
+    toolbar: [[{ header: [1, 2, 3, false] }], ["bold", "italic", "underline", "strike", "blockquote"], [{ list: "ordered" }, { list: "bullet" }], ["link"], [{ align: [] }], [{ color: [] }], ["code-block"], ["clean"]],
+  };
+
+  const quillFormats = ["header", "bold", "italic", "underline", "strike", "blockquote", "list", "bullet", "link", "image", "align", "color", "code-block"];
+
+  const handleEditorChange = (newContent: any) => {
+    setContent(newContent);
+  };
 
   useEffect(() => {
     const sessionId = localStorage.getItem("id");
@@ -40,7 +42,6 @@ export default function Publish() {
       router.push("/signin");
     }
   }, []);
-  useEffect(() => {}, [imagePublicUrl]);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -55,7 +56,7 @@ export default function Publish() {
       router.push("/signin");
     }
     try {
-      const response = await fetch("http://localhost:3000/api/posts/create-post", {
+      const response = await fetch("/api/posts/create-post", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -89,9 +90,9 @@ export default function Publish() {
   };
 
   return (
-    <div className="min-h-screen max-h-screen flex flex-col justify-evenly items-center bg-white">
-      <h1 className="font-sans font-bold antialiased">Mau sharing cerita apa hari ini?</h1>
-      <form className="max-w-60 mx-auto" onSubmit={handleSubmit}>
+    <div className=" min-h-screen max-h-screen min-w-full px-20 max-w-full flex flex-col justify-evenly items-center bg-white">
+      <form className="border shadow rounded max-w-full min-w-full  mx-auto p-20" onSubmit={handleSubmit}>
+        <h1 className="text-center font-sans font-bold antialiased">Mau sharing cerita apa hari ini?</h1>
         <div className="mb-5">
           <label htmlFor="title" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
             Judul Postingan
@@ -107,18 +108,12 @@ export default function Publish() {
           />
         </div>
         <div className="mb-5">
-          <label htmlFor="content" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+          <label htmlFor="content" className="block text-sm font-medium text-gray-900 dark:text-white">
             Konten Postingan
           </label>
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            id="content"
-            rows={4}
-            className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            required
-          />
+          <QuillEditor value={content} onChange={handleEditorChange} modules={quillModules} formats={quillFormats} className="w-full min-h-[80%] mt-1 bg-white" />
           <div>
+            <img className="my-3 border max-w-14 min-w-14 min-h-14 max-h-14" src={imagePublicUrl == "" ? "/image/placeholder-image.png" : imagePublicUrl} alt="" />
             <CldUploadWidget
               uploadPreset="nimbrung"
               onSuccess={(result: any) => {
@@ -130,58 +125,17 @@ export default function Publish() {
               }}
             >
               {({ open }) => {
-                return <button onClick={() => open()}>Upload an Image</button>;
+                return (
+                  <button
+                    className="text-white bg-slate-400 hover:bg-slate-500 focus:outline-none font-medium rounded-lg text-sm max-w-30 sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                    onClick={() => open()}
+                  >
+                    Unggah banner
+                  </button>
+                );
               }}
             </CldUploadWidget>
           </div>
-          {/* <RichTextEditor editor={editor}>
-            <RichTextEditor.Toolbar sticky stickyOffset={60}>
-              <RichTextEditor.ControlsGroup>
-                <RichTextEditor.Bold />
-                <RichTextEditor.Italic />
-                <RichTextEditor.Underline />
-                <RichTextEditor.Strikethrough />
-                <RichTextEditor.ClearFormatting />
-                <RichTextEditor.Highlight />
-                <RichTextEditor.Code />
-              </RichTextEditor.ControlsGroup>
-
-              <RichTextEditor.ControlsGroup>
-                <RichTextEditor.H1 />
-                <RichTextEditor.H2 />
-                <RichTextEditor.H3 />
-                <RichTextEditor.H4 />
-              </RichTextEditor.ControlsGroup>
-
-              <RichTextEditor.ControlsGroup>
-                <RichTextEditor.Blockquote />
-                <RichTextEditor.Hr />
-                <RichTextEditor.BulletList />
-                <RichTextEditor.OrderedList />
-                <RichTextEditor.Subscript />
-                <RichTextEditor.Superscript />
-              </RichTextEditor.ControlsGroup>
-
-              <RichTextEditor.ControlsGroup>
-                <RichTextEditor.Link />
-                <RichTextEditor.Unlink />
-              </RichTextEditor.ControlsGroup>
-
-              <RichTextEditor.ControlsGroup>
-                <RichTextEditor.AlignLeft />
-                <RichTextEditor.AlignCenter />
-                <RichTextEditor.AlignJustify />
-                <RichTextEditor.AlignRight />
-              </RichTextEditor.ControlsGroup>
-
-              <RichTextEditor.ControlsGroup>
-                <RichTextEditor.Undo />
-                <RichTextEditor.Redo />
-              </RichTextEditor.ControlsGroup>
-            </RichTextEditor.Toolbar>
-
-            <RichTextEditor.Content />
-          </RichTextEditor> */}
         </div>
         <button
           type="submit"

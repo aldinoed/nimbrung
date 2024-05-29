@@ -3,12 +3,10 @@
 import { SessionProvider } from "next-auth/react";
 import { useEffect, useState } from "react";
 import React from "react";
-import Image from "next/image";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import HomePage from "./components/HomePage";
 import Navbar from "./components/Navbar";
 import axios from "axios";
 import Link from "next/link";
+import DOMPurify from "dompurify";
 import Loading from "./components/Loading";
 
 export default function Home() {
@@ -21,7 +19,6 @@ export default function Home() {
         setPosts(response.data.data);
         setLoaded(true);
       } else {
-        console.log("agdajdhghsagj");
         setPosts([]);
         setLoaded(true);
       }
@@ -31,7 +28,7 @@ export default function Home() {
   }, []);
   return (
     <>
-      <div className="min-h-screen max-h-screen bg-white" style={{ minWidth: "100vh !important" }}>
+      <div className="min-h-screen min-w-screen max-w-screen max-h-screen bg-white" style={{ minWidth: "100vh !important" }}>
         <Navbar></Navbar>
 
         <div className="flex  justify-center align-items-center  bg-white" style={{ marginTop: "0" }}>
@@ -45,15 +42,18 @@ export default function Home() {
               <h1 className="mt-4 text-center text-black text-lg font-bold">Belum ada postingan</h1>
             </div>
           ) : (
-            <div className="flex flex-col align-items-center max-w-screen py-12 px-24">
+            <div className="flex flex-col align-items-center max-w-full min-w-full px-10 py-12 ">
               {posts.map((item: any, i: any) => (
                 <div key={i} className="text-wrap block mb-3 max-w-full min-w-full max-h-52 min-h-52 p-6 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
                   <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                    <Link href={`/posts/${item.title}`} className="text-gray-900 dark:text-white">
-                      {item.title}
-                    </Link>
+                    <p className="text-gray-900 dark:text-white">{item.title}</p>
                   </h5>
-                  <p className="font-normal text-gray-700 dark:text-gray-400 text-wrap">{item.content}</p>
+                  <div className="font-normal text-gray-700 dark:text-gray-400 text-wrap" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item.content) }}>
+                    {/* {item.content} */}
+                  </div>
+                  <Link className="" href={`/posts/${item.title}`}>
+                    Baca selengkapnya
+                  </Link>
                 </div>
               ))}
             </div>

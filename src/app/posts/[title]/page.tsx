@@ -2,6 +2,7 @@
 import Navbar from "@/app/components/Navbar";
 import axios from "axios";
 import { CldImage } from "next-cloudinary";
+import DOMPurify from "dompurify";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
@@ -137,7 +138,7 @@ export default function DetailPost() {
               <h1 className="text-black text-center font-bold text-3xl mb-5">{title}</h1>
               <div className=" max-w-full min-w-full flex flex-col " style={{ marginTop: "3re" }}>
                 {imagePublicUrl != null ? <div className="flex justify-center">{imagePublicUrl && <img src={imagePublicUrl} className="self-center max-w-44 max-h-44" alt="Description of my image" />}</div> : <div></div>}
-                <p className="">{content}</p>
+                <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }}></div>
                 <span className="text-slate-600 pt-3">Diposting {publishDate}</span>
                 <span className="text-slate-600">Oleh {authorName}</span>
               </div>
@@ -171,7 +172,7 @@ export default function DetailPost() {
               ) : (
                 <div className="mx-auto min-h-[200px] max-h-[200px] max-w-[50%] min-w-[50%] overflow-y-auto flex justify-center flex-col align-items-center mt-4" style={{ scrollbarWidth: "none" }}>
                   {commentData.map((item: any, i: number) => (
-                    <div key={i} className="mb-2 my-auto rounded-md border min-h-24 min-w-full flex-col align-items-center max-w-full">
+                    <div key={i} className="mb-2 rounded-md border min-h-24 min-w-full flex-col align-items-center max-w-full">
                       <div className="flex">
                         <div className="flex flex-col mt-2">
                           <span className="font-bold">{item.user.fullname}</span>
