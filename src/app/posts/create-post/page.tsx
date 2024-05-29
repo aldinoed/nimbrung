@@ -91,7 +91,7 @@ export default function Publish() {
 
   return (
     <div className=" min-h-screen max-h-screen min-w-full px-20 max-w-full flex flex-col justify-evenly items-center bg-white">
-      <form className="border shadow rounded max-w-full min-w-full  mx-auto p-20" onSubmit={handleSubmit}>
+      <form className="border shadow rounded max-w-full min-w-full  mx-auto p-20">
         <h1 className="text-center font-sans font-bold antialiased">Mau sharing cerita apa hari ini?</h1>
         <div className="mb-5">
           <label htmlFor="title" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -140,6 +140,7 @@ export default function Publish() {
         <button
           type="submit"
           className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          onClick={handleSubmit}
         >
           Kirim
         </button>
