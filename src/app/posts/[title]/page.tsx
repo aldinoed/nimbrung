@@ -11,6 +11,7 @@ import Image from "next/image";
 import Cookies from "js-cookie";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane } from "@fortawesome/free-regular-svg-icons";
+import { faTrashCan } from "@fortawesome/free-regular-svg-icons";
 import Swal from "sweetalert2";
 const moments = require("moment");
 import "moment/locale/id";
@@ -27,6 +28,7 @@ export default function DetailPost() {
   const router = useRouter();
   const param = useParams();
   const [commentData, setCommentData] = useState<any>([]);
+  const [sessionData, setSessionData] = useState<any>();
   const [authorId, setAuthorId] = useState(null);
   const [authorName, setAuthorName] = useState(null);
   const [postId, setPostId] = useState(null);
@@ -37,18 +39,12 @@ export default function DetailPost() {
   const [loaded, setLoaded] = useState(false);
   const [imagePublicUrl, setImagePublicUrl] = useState("");
 
-  async function fetchUser(id: any) {
-    const data = await axios.get("/api/users/" + id);
-    setAuthorName(data.data.data.user.fullname);
-  }
-
   async function fetchDetailPost() {
     const data = await axios.get("/api/posts/" + param.title);
     setPostId(data.data.data.id);
-    setTimeout(() => {}, 500);
     setTitle(data.data.data.title);
     setContent(data.data.data.content);
-    setAuthorId(data.data.data.authorId);
+    setAuthorId(data.data.data.user.fullname);
     let parsedDate = moments(data.data.data.createdAt).locale("id").fromNow();
     setPublishDate(parsedDate);
     setImagePublicUrl(data.data.data.image);
@@ -61,7 +57,6 @@ export default function DetailPost() {
       item.createdAt = moments(item.createdAt).locale("id").fromNow();
       tempData.push(item);
     }
-    fetchUser(data.data.data.authorId);
     setCommentData(tempData);
     setLoaded(true);
   }
@@ -95,17 +90,17 @@ export default function DetailPost() {
           body: JSON.stringify({
             postId: parseInt(postId!),
             comment: comment.trim(),
-            userId: parseInt(authorId!),
+            userId: parseInt(userId!),
           }),
         });
         let res = await response.json();
-        setComment("");
         if (response.status === 200) {
           Swal.fire({
             title: "Berhasil!",
             text: res.message,
             icon: "success",
           });
+          setComment("");
         } else if (response.status === 400) {
           Swal.fire({
             title: "Oops!",
@@ -123,6 +118,47 @@ export default function DetailPost() {
       }
     }
   };
+  useEffect(() => {
+    const sessionId = localStorage.getItem("id");
+    setSessionData(sessionId !== null ? sessionId : null);
+  }, []);
+  const deleteHandler = async (id: number) => {
+    const sessionId = localStorage.getItem("id");
+    const sessionName = localStorage.getItem("name");
+    if (Cookies.get("auth") === null || Cookies.get("auth") === undefined || sessionId == null || sessionName == null) {
+      localStorage.clear();
+      Swal.fire({
+        title: "Oops!",
+        text: "Kamu belum login nih!",
+        icon: "warning",
+      });
+      router.push("/signin");
+    }
+    try {
+      const response = await axios.delete("/api/posts/comment/" + id);
+      if (response.status === 200) {
+        Swal.fire({
+          title: "Berhasil!",
+          text: "Komentarmu berhasil dihapus",
+          icon: "success",
+        });
+        const newComments = commentData.filter((item: any) => item.id !== id);
+        setCommentData(newComments);
+      } else {
+        Swal.fire({
+          title: "Gagal!",
+          text: "Gagal ngehapus postinganmu",
+          icon: "error",
+        });
+      }
+    } catch (error: any) {
+      Swal.fire({
+        title: "Error!",
+        text: "Yah... sistem lagi gangguan nih!",
+        icon: "error",
+      });
+    }
+  };
   return (
     <>
       {loaded === false ? (
@@ -130,7 +166,7 @@ export default function DetailPost() {
           <Loading type={"spin"} color={"#aaaaaa"} />
         </div>
       ) : (
-        <div className="min-h-screen bg-white pt-0 min-w-screen max-w-screen">
+        <div className="min-h-screen bg-white pt-0 min-w-screen max-w-screen mb-3">
           <Navbar></Navbar>
           {/* <div className=""> */}
           <div className="px-10 pt-12 bg-white mx-auto min-h-full max-w-full min-w-full">
@@ -140,10 +176,10 @@ export default function DetailPost() {
                 {imagePublicUrl != null ? <div className="flex justify-center">{imagePublicUrl && <img src={imagePublicUrl} className="self-center max-w-44 max-h-44" alt="Description of my image" />}</div> : <div></div>}
                 <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }}></div>
                 <span className="text-slate-600 pt-3">Diposting {publishDate}</span>
-                <span className="text-slate-600">Oleh {authorName}</span>
+                <span className="text-slate-600">Oleh {authorId}</span>
               </div>
             </div>
-            <form onSubmit={hanldeCommentSubmit} className="rounded-md bg-white mx-auto mt-5 max-w-full min-w-full flex justify-center">
+            <form onSubmit={hanldeCommentSubmit} className="rounded-md bg-white mb-5 mx-auto mt-5 max-w-full min-w-full flex justify-center">
               <div className=" mt-5 " style={{ maxWidth: "60%", minWidth: "60%" }}>
                 <h4 className="text-black font-bold text-3sm mb-5">Komentar</h4>
                 {/* <Image src={""} alt="banner" /> */}
@@ -164,17 +200,17 @@ export default function DetailPost() {
                 </div>
               </div>
             </form>
-            <div>
+            <div className="">
               {commentData.length === 0 ? (
                 <div className="flex-col flex mx-auto align-items-center my-7 max-h-52 max-w-52">
                   <h1 className="mt-4 text-center text-black text-lg font-bold">Belum ada komentar</h1>
                 </div>
               ) : (
-                <div className="mx-auto min-h-[200px] max-h-[200px] max-w-[50%] min-w-[50%] overflow-y-auto flex justify-center flex-col align-items-center mt-4" style={{ scrollbarWidth: "none" }}>
+                <div className="mx-auto min-h-[200px] max-h-[200px] max-w-[52%] min-w-[52%] overflow-y-auto  mt-4 " style={{ scrollbarWidth: "none" }}>
                   {commentData.map((item: any, i: number) => (
-                    <div key={i} className="mb-2 rounded-md border min-h-24 min-w-full flex-col align-items-center max-w-full">
+                    <div key={i} className="p-3 mb-2 rounded-md border min-h-24 min-w-full flex-col align-items-center max-w-full">
                       <div className="flex">
-                        <div className="flex flex-col mt-2">
+                        <div className="flex flex-col">
                           <span className="font-bold">{item.user.fullname}</span>
                           <span className="text-xs text-current">{item.createdAt}</span>
                         </div>
@@ -182,6 +218,15 @@ export default function DetailPost() {
                       <div>
                         <p>{item.comment}</p>
                       </div>
+                      {sessionData != item.userId ? (
+                        <></>
+                      ) : (
+                        <div className=" min-h-[100%] self-center">
+                          <button onClick={() => deleteHandler(item.id)}>
+                            <FontAwesomeIcon icon={faTrashCan} />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

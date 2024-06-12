@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "../../../../../prisma";
 export async function GET(req: any, { params }: any) {
   try {
-    const response = await prisma.post.findFirst({ where: { title: params.title } });
+    const response = await prisma.post.findFirst({ where: { title: params.title }, include: { user: true } });
 
     if (response) {
       return NextResponse.json(

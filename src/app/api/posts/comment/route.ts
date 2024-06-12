@@ -24,6 +24,7 @@ export async function POST(request: any) {
         comment: comment,
       },
     });
+    console.log("🚀 ~ POST ~ response:", response);
     return NextResponse.json(
       {
         success: true,

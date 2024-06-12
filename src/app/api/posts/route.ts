@@ -3,7 +3,7 @@ import prisma from "../../../../prisma";
 
 export async function GET() {
   try {
-    const response = await prisma.post.findMany();
+    const response = await prisma.post.findMany({ orderBy: { createdAt: "desc" } });
 
     if (response.length > 0) {
       return NextResponse.json(
